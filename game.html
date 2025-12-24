@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jingle & Bloom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', cursive;
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+
+        .screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Decorative elements */
+        .bell {
+            width: 30px;
+            height: 35px;
+            background: #F8991D;
+            border-radius: 0 0 15px 15px;
+            position: absolute;
+            animation: swing 2s ease-in-out infinite;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .bell::before {
+            content: '';
+            width: 20px;
+            height: 8px;
+            background: #FC4024;
+            position: absolute;
+            top: -4px;
+            left: 5px;
+            border-radius: 4px;
+        }
+
+        .bell::after {
+            content: '';
+            width: 8px;
+            height: 12px;
+            background: #9F8D32;
+            position: absolute;
+            bottom: 5px;
+            left: 11px;
+            border-radius: 4px;
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .ribbon {
+            width: 60px;
+            height: 15px;
+            background: #FC4024;
+            position: absolute;
+            border-radius: 3px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .ribbon::before {
+            content: '';
+            width: 15px;
+            height: 25px;
+            background: #FC4024;
+            position: absolute;
+            bottom: -20px;
+            left: 5px;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+
+        .ribbon::after {
+            content: '';
+            width: 15px;
+            height: 25px;
+            background: #FC4024;
+            position: absolute;
+            bottom: -20px;
+            right: 5px;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+
+        /* Landing Page */
+        #landing {
+            background: linear-gradient(135deg, 
+                #EBDCC7 0%, #EBDEA6 14%, #BBC5AB 28%, 
+                #F09E7D 42%, #F8991D 56%, #FC4024 70%, 
+                #EF4782 84%, #8552A0 100%);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.5); }
+        }
+
+        .tree {
+            width: 220px;
+            height: 270px;
+            position: relative;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+
+        .tree-part {
+            width: 0;
+            height: 0;
+            border-left: 55px solid transparent;
+            border-right: 55px solid transparent;
+            border-bottom: 85px solid #00784F;
+            position: absolute;
+            left: 55px;
+        }
+
+        .tree-part:nth-child(1) { top: 0; }
+        .tree-part:nth-child(2) { 
+            top: 65px; 
+            border-left-width: 75px; 
+            border-right-width: 75px; 
+            left: 35px;
+            border-bottom-color: #00859C;
+        }
+        .tree-part:nth-child(3) { 
+            top: 135px; 
+            border-left-width: 95px; 
+            border-right-width: 95px; 
+            left: 15px;
+            border-bottom-color: #004242;
+        }
+
+        .trunk {
+            width: 45px;
+            height: 55px;
+            background: #9F8D32;
+            position: absolute;
+            bottom: 0;
+            left: 87px;
+            border-radius: 5px;
+        }
+
+        .ornament {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            position: absolute;
+            animation: twinkle 1.5s infinite;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .cute-character {
+            width: 80px;
+            height: 100px;
+            position: relative;
+            margin-bottom: 25px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Character body */
+        .char-body {
+            width: 70px;
+            height: 80px;
+            background: #FC4024;
+            border-radius: 35px 35px 20px 20px;
+            position: absolute;
+            left: 5px;
+            bottom: 0;
+            box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
+        }
+
+        /* Character face */
+        .char-face {
+            width: 55px;
+            height: 55px;
+            background: #EBDCC7;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            left: 12.5px;
+            z-index: 2;
+        }
+
+        .char-eye {
+            width: 8px;
+            height: 12px;
+            background: #004242;
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            animation: blink 3s infinite;
+        }
+
+        @keyframes blink {
+            0%, 96%, 100% { height: 12px; }
+            98% { height: 2px; }
+        }
+
+        .char-eye.left { left: 15px; }
+        .char-eye.right { right: 15px; }
+
+        .char-mouth {
+            width: 20px;
+            height: 10px;
+            border: 3px solid #004242;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            bottom: 12px;
+            left: 17.5px;
+        }
+
+        .char-blush {
+            width: 15px;
+            height: 10px;
+            background: #EF4782;
+            border-radius: 50%;
+            opacity: 0.6;
+            position: absolute;
+            top: 30px;
+        }
+
+        .char-blush.left { left: 5px; }
+        .char-blush.right { right: 5px; }
+
+        /* Santa hat */
+        .santa-hat {
+            width: 50px;
+            height: 40px;
+            background: #FC4024;
+            position: absolute;
+            top: -25px;
+            left: 15px;
+            border-radius: 30px 30px 0 0;
+            transform: rotate(-15deg);
+        }
+
+        .santa-hat::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: -8px;
+            right: -5px;
+        }
+
+        .santa-hat::after {
+            content: '';
+            width: 55px;
+            height: 8px;
+            background: white;
+            position: absolute;
+            bottom: 0;
+            left: -2px;
+            border-radius: 4px;
+        }
+
+        .go-button {
+            padding: 25px 70px;
+            font-size: 42px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FC4024, #EF4782);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #8552A0, 0 12px 20px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .go-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 11px 0 #8552A0, 0 15px 25px rgba(0,0,0,0.4);
+        }
+
+        .go-button:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #8552A0, 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .title {
+            color: white;
+            font-size: 56px;
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 0 #8552A0, 5px 5px 15px rgba(0,0,0,0.3);
+            animation: rainbow 3s infinite;
+        }
+
+        @keyframes rainbow {
+            0% { color: #FC4024; }
+            25% { color: #F8991D; }
+            50% { color: #00859C; }
+            75% { color: #EF4782; }
+            100% { color: #FC4024; }
+        }
+
+        /* Game Page */
+        #game {
+            background: linear-gradient(to bottom, #00859C 0%, #BBC5AB 50%, #EBDEA6 100%);
+            flex-direction: column;
+        }
+
+        .game-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #FC4024, #F8991D);
+            color: white;
+            font-size: 28px;
+            display: flex;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-canvas {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, #00784F, #004242);
+            border-top: 5px solid #F8991D;
+        }
+
+        .snow-ground {
+            position: absolute;
+            bottom: 90px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .player {
+            width: 50px;
+            height: 70px;
+            position: absolute;
+            left: 100px;
+            bottom: 100px;
+            transition: bottom 0.05s;
+        }
+
+        .player-body {
+            width: 50px;
+            height: 55px;
+            background: #FC4024;
+            border-radius: 25px 25px 15px 15px;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .player-face {
+            width: 38px;
+            height: 38px;
+            background: #EBDCC7;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            left: 6px;
+        }
+
+        .player-eye {
+            width: 6px;
+            height: 8px;
+            background: #004242;
+            border-radius: 50%;
+            position: absolute;
+            top: 14px;
+        }
+
+        .player-eye.left { left: 10px; }
+        .player-eye.right { right: 10px; }
+
+        .player-smile {
+            width: 14px;
+            height: 7px;
+            border: 2px solid #004242;
+            border-top: none;
+            border-radius: 0 0 14px 14px;
+            position: absolute;
+            bottom: 8px;
+            left: 12px;
+        }
+
+        .player-hat {
+            width: 35px;
+            height: 28px;
+            background: #FC4024;
+            position: absolute;
+            top: -18px;
+            left: 7px;
+            border-radius: 20px 20px 0 0;
+            transform: rotate(-10deg);
+        }
+
+        .player-hat::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: -5px;
+            right: -3px;
+        }
+
+        .player-hat::after {
+            content: '';
+            width: 38px;
+            height: 6px;
+            background: white;
+            position: absolute;
+            bottom: 0;
+            left: -1px;
+            border-radius: 3px;
+        }
+
+        .player.jumping {
+            animation: playerJump 0.5s;
+        }
+
+        .player.sliding .player-body {
+            height: 35px;
+            border-radius: 15px;
+        }
+
+        .player.sliding .player-face {
+            top: 3px;
+        }
+
+        @keyframes playerJump {
+            0%, 100% { bottom: 100px; }
+            50% { bottom: 220px; }
+        }
+
+        .obstacle {
+            width: 45px;
+            height: 65px;
+            position: absolute;
+            bottom: 100px;
+            right: 0;
+        }
+
+        /* Snowman obstacle */
+        .snowman-bottom {
+            width: 45px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .snowman-top {
+            width: 35px;
+            height: 35px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 25px;
+            left: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .snowman-face {
+            width: 4px;
+            height: 4px;
+            background: #004242;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+        }
+
+        .snowman-face:nth-child(1) { left: 10px; }
+        .snowman-face:nth-child(2) { right: 10px; }
+
+        .coin {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #F8991D, #EBDEA6);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 160px;
+            right: 0;
+            box-shadow: 0 0 15px #F8991D, inset -3px -3px 0 rgba(0,0,0,0.2);
+            animation: coinSpin 1s linear infinite;
+        }
+
+        .coin::before {
+            content: '★';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: white;
+        }
+
+        @keyframes coinSpin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* Game Over Screen */
+        #gameover {
+            background: linear-gradient(135deg, #FC4024, #EF4782, #8552A0);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gameover-content {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border: 5px solid #F8991D;
+        }
+
+        .gameover-content h1 {
+            font-size: 56px;
+            margin-bottom: 25px;
+            color: #FC4024;
+            text-shadow: 3px 3px 0 #F8991D;
+        }
+
+        .gameover-content p {
+            font-size: 36px;
+            margin-bottom: 35px;
+            color: #8552A0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 25px;
+        }
+
+        .btn {
+            padding: 20px 50px;
+            font-size: 28px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 20px;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            color: white;
+        }
+
+        .btn-redeem {
+            background: linear-gradient(135deg, #00784F, #00859C);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #F8991D, #F09E7D);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+        }
+
+        .btn-home {
+            padding: 12px 28px;
+            font-size: 22px;
+            background: linear-gradient(135deg, #8552A0, #EF4782);
+            border-radius: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Redeem Page */
+        #redeem {
+            background: linear-gradient(135deg, #EF4782, #8552A0, #00859C);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .redeem-content {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            min-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border: 5px solid #F8991D;
+        }
+
+        .redeem-content h1 {
+            color: #FC4024;
+            font-size: 48px;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 0 #F8991D;
+        }
+
+        .balance {
+            font-size: 42px;
+            margin-bottom: 35px;
+            color: #F8991D;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #F09E7D;
+        }
+
+        .redeem-options {
+            display: flex;
+            gap: 35px;
+            margin-bottom: 35px;
+        }
+
+        .redeem-card {
+            flex: 1;
+            padding: 30px;
+            background: linear-gradient(135deg, #EBDEA6, #BBC5AB);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 4px solid transparent;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .redeem-card:hover {
+            border-color: #00784F;
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .redeem-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .redeem-card h2 {
+            color: #8552A0;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .flower-display {
+            width: 120px;
+            height: 120px;
+            margin: 25px auto;
+            position: relative;
+        }
+
+        .flower {
+            width: 60px;
+            height: 20px;
+            background: #EF4782;
+            position: absolute;
+            left: 30px;
+            top: 40px;
+            border-radius: 50%;
+        }
+
+        .petal {
+            width: 25px;
+            height: 35px;
+            background: #EF4782;
+            position: absolute;
+            border-radius: 50%;
+            top: 25px;
+        }
+
+        .petal:nth-child(1) { left: 17px; transform: rotate(-45deg); }
+        .petal:nth-child(2) { left: 33px; top: 15px; }
+        .petal:nth-child(3) { right: 17px; transform: rotate(45deg); }
+        .petal:nth-child(4) { left: 15px; top: 35px; transform: rotate(-90deg); }
+        .petal:nth-child(5) { right: 15px; top: 35px; transform: rotate(90deg); }
+
+        .flower-center {
+            width: 20px;
+            height: 20px;
+            background: #F8991D;
+            border-radius: 50%;
+            position: absolute;
+            top: 30px;
+            left: 50px;
+            z-index: 2;
+            box-shadow: 0 0 10px #F8991D;
+        }
+
+        .stem {
+            width: 6px;
+            height: 50px;
+            background: #00784F;
+            position: absolute;
+            bottom: 10px;
+            left: 57px;
+            border-radius: 3px;
+        }
+
+        .leaf {
+            width: 20px;
+            height: 12px;
+            background: #00784F;
+            position: absolute;
+            bottom: 35px;
+            border-radius: 0 50% 50% 0;
+        }
+
+        .leaf.left { left: 40px; transform: rotate(-30deg); }
+        .leaf.right { right: 40px; transform: rotate(30deg) scaleX(-1); }
+
+        .flower.dancing {
+            animation: dance 0.5s ease-in-out 3;
+        }
+
+        .flower.blooming {
+            animation: bloom 2s ease-in-out;
+        }
+
+        @keyframes dance {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+        }
+
+        @keyframes bloom {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .redeem-card p {
+            font-size: 28px;
+            color: #FC4024;
+            font-weight: bold;
+        }
+
+        .back-button {
+            margin-top: 25px;
+            padding: 15px 40px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #BBC5AB, #EBDCC7);
+            color: #004242;
+            border: none;
+            cursor: pointer;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+        }
+
+        .back-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing" class="screen active">
+        <!-- Bells decoration -->
+        <div class="bell" style="top: 30px; left: 50px;"></div>
+        <div class="bell" style="top: 50px; right: 80px; animation-delay: 0.5s;"></div>
+        <div class="bell" style="bottom: 100px; left: 100px; animation-delay: 1s;"></div>
+        <div class="bell" style="bottom: 120px; right: 120px; animation-delay: 0.3s;"></div>
+        
+        <!-- Ribbons decoration -->
+        <div class="ribbon" style="top: 80px; left: 150px; transform: rotate(45deg);"></div>
+        <div class="ribbon" style="top: 100px; right: 200px; transform: rotate(-30deg);"></div>
+        <div class="ribbon" style="bottom: 150px; left: 250px; transform: rotate(15deg);"></div>
+        
+        <div class="tree">
+            <div class="tree-part"></div>
+            <div class="tree-part"></div>
+            <div class="tree-part"></div>
+            <div class="trunk"></div>
+        </div>
+        
+        <div class="cute-character">
+            <div class="santa-hat"></div>
+            <div class="char-body">
+                <div class="char-face">
+                    <div class="char-eye left"></div>
+                    <div class="char-eye right"></div>
+                    <div class="char-blush left"></div>
+                    <div class="char-blush right"></div>
+                    <div class="char-mouth"></div>
+                </div>
+            </div>
+        </div>
+        
+        <h1 class="title">Jingle & Bloom</h1>
+        <button class="go-button" onclick="startGame()">GO!</button>
+    </div>
+
+    <!-- Game Page -->
+    <div id="game" class="screen">
+        <!-- Bells decoration -->
+        <div class="bell" style="top: 100px; left: 30px;"></div>
+        <div class="bell" style="top: 120px; right: 50px; animation-delay: 0.7s;"></div>
+        
+        <!-- Ribbons decoration -->
+        <div class="ribbon" style="top: 150px; left: 100px; transform: rotate(25deg);"></div>
+        <div class="ribbon" style="top: 180px; right: 150px; transform: rotate(-45deg);"></div>
+        
+        <div class="game-header">
+            <div>🎮 Jingle & Bloom</div>
+            <div class="header-right">
+                <div id="coinDisplay">⭐ Coins: 0</div>
+                <button class="btn btn-home" onclick="goHome()">🏠 Home</button>
+            </div>
+        </div>
+        <div class="game-canvas" id="gameCanvas">
+            <div class="snow-ground"></div>
+            <div class="ground"></div>
+            <div class="player" id="player">
+                <div class="player-hat"></div>
+                <div class="player-body">
+                    <div class="player-face">
+                        <div class="player-eye left"></div>
+                        <div class="player-eye right"></div>
+                        <div class="player-smile"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover" class="screen">
+        <!-- Bells decoration -->
+        <div class="bell" style="top: 50px; left: 80px;"></div>
+        <div class="bell" style="top: 70px; right: 100px; animation-delay: 0.4s;"></div>
+        <div class="bell" style="bottom: 80px; left: 120px; animation-delay: 0.9s;"></div>
+        <div class="bell" style="bottom: 100px; right: 90px; animation-delay: 0.2s;"></div>
+        
+        <!-- Ribbons decoration -->
+        <div class="ribbon" style="top: 120px; left: 200px; transform: rotate(60deg);"></div>
+        <div class="ribbon" style="bottom: 150px; right: 180px; transform: rotate(-20deg);"></div>
+        
+        <div class="gameover-content">
+            <h1>Game Over!</h1>
+            <p id="finalScore">You collected 0 gold coins!</p>
+            <div class="button-group">
+                <button class="btn btn-redeem" onclick="showRedeem()">Redeem 🌸</button>
+                <button class="btn btn-reset" onclick="resetGame()">Reset 🔄</button>
+                <button class="btn btn-home" onclick="goHome()">🏠 Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Redeem Page -->
+    <div id="redeem" class="screen">
+        <!-- Bells decoration -->
+        <div class="bell" style="top: 60px; left: 60px;"></div>
+        <div class="bell" style="top: 80px; right: 70px; animation-delay: 0.6s;"></div>
+        <div class="bell" style="bottom: 90px; left: 90px; animation-delay: 0.8s;"></div>
+        <div class="bell" style="bottom: 110px; right: 110px; animation-delay: 0.3s;"></div>
+        
+        <!-- Ribbons decoration -->
+        <div class="ribbon" style="top: 140px; left: 180px; transform: rotate(35deg);"></div>
+        <div class="ribbon" style="top: 160px; right: 220px; transform: rotate(-50deg);"></div>
+        <div class="ribbon" style="bottom: 130px; left: 160px; transform: rotate(20deg);"></div>
+        
+        <div class="redeem-content">
+            <h1>Redeem Your Coins 🎁</h1>
+            <div class="balance" id="balance">⭐ Balance: 0 coins</div>
+            <div class="redeem-options">
+                <div class="redeem-card" id="danceCard" onclick="redeemDance()">
+                    <h2>Dancing Flower 💃</h2>
+                    <div class="flower-display">
+                        <div class="flower" id="danceFlower">
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="flower-center"></div>
+                        </div>
+                        <div class="stem"></div>
+                        <div class="leaf left"></div>
+                        <div class="leaf right"></div>
+                    </div>
+                    <p>1 coin</p>
+                </div>
+                <div class="redeem-card" id="bloomCard" onclick="redeemBloom()">
+                    <h2>Bloom Flower 🌺</h2>
+                    <div class="flower-display">
+                        <div class="flower" id="bloomFlower">
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="flower-center"></div>
+                        </div>
+                        <div class="stem"></div>
+                        <div class="leaf left"></div>
+                        <div class="leaf right"></div>
+                    </div>
+                    <p>2 coins</p>
+                </div>
+            </div>
+            <div class="redeem-actions" style="margin-top:20px; display:flex; gap:15px; align-items:center;">
+                <button class="back-button" onclick="backToGameOver()">⬅️ Back</button>
+                <button class="btn btn-home" onclick="goHome()">🏠 Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let coins = 0;
+        let gameRunning = false;
+        let obstacles = [];
+        let coinObjects = [];
+        let gameLoop;
+        let spawnLoop;
+        let isJumping = false;
+        let isSliding = false;
+
+        // Screen management
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            showScreen('game');
+            gameRunning = true;
+            coins = 0;
+            updateCoinDisplay();
+            startGameLoop();
+        }
+
+        function updateCoinDisplay() {
+            document.getElementById('coinDisplay').textContent = `⭐ Coins: ${coins}`;
+        }
+
+        // Game loop
+        function startGameLoop() {
+            const canvas = document.getElementById('gameCanvas');
+            const player = document.getElementById('player');
+            
+            // Clear existing objects
+            obstacles.forEach(o => o.element.remove());
+            coinObjects.forEach(c => c.element.remove());
+            obstacles = [];
+            coinObjects = [];
+
+            // Spawn objects
+            spawnLoop = setInterval(() => {
+                if (Math.random() > 0.5) {
+                    spawnObstacle();
+                } else {
+                    spawnCoin();
+                }
+            }, 3000);
+
+            // Game update loop
+            gameLoop = setInterval(() => {
+                if (!gameRunning) return;
+
+                // Move and check obstacles
+                obstacles.forEach((obstacle, index) => {
+                    obstacle.x -= 3;
+                    obstacle.element.style.right = (window.innerWidth - obstacle.x - 45) + 'px';
+
+                    // Check collision
+                    if (checkCollision(player, obstacle.element)) {
+                        gameOver();
+                    }
+
+                    // Remove if off screen
+                    if (obstacle.x < -60) {
+                        obstacle.element.remove();
+                        obstacles.splice(index, 1);
+                    }
+                });
+
+                // Move and check coins
+                coinObjects.forEach((coin, index) => {
+                    coin.x -= 3;
+                    coin.element.style.right = (window.innerWidth - coin.x - 35) + 'px';
+
+                    // Check collection
+                    if (checkCollision(player, coin.element)) {
+                        coins++;
+                        updateCoinDisplay();
+                        coin.element.remove();
+                        coinObjects.splice(index, 1);
+                    }
+
+                    // Remove if off screen
+                    if (coin.x < -60) {
+                        coin.element.remove();
+                        coinObjects.splice(index, 1);
+                    }
+                });
+            }, 20);
+        }
+
+        function spawnObstacle() {
+            const canvas = document.getElementById('gameCanvas');
+            const obstacle = document.createElement('div');
+            obstacle.className = 'obstacle';
+            obstacle.innerHTML = `
+                <div class="snowman-bottom"></div>
+                <div class="snowman-top">
+                    <div class="snowman-face"></div>
+                    <div class="snowman-face"></div>
+                </div>
+            `;
+            canvas.appendChild(obstacle);
+            
+            obstacles.push({
+                element: obstacle,
+                x: window.innerWidth
+            });
+        }
+
+        function spawnCoin() {
+            const canvas = document.getElementById('gameCanvas');
+            const coin = document.createElement('div');
+            coin.className = 'coin';
+            canvas.appendChild(coin);
+            
+            coinObjects.push({
+                element: coin,
+                x: window.innerWidth
+            });
+        }
+
+        function checkCollision(player, object) {
+            const playerRect = player.getBoundingClientRect();
+            const objectRect = object.getBoundingClientRect();
+
+            return !(playerRect.right < objectRect.left + 10 || 
+                     playerRect.left > objectRect.right - 10 || 
+                     playerRect.bottom < objectRect.top + 10 || 
+                     playerRect.top > objectRect.bottom - 10);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            clearInterval(spawnLoop);
+            document.getElementById('finalScore').textContent = `You collected ${coins} gold coins!`;
+            showScreen('gameover');
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+
+            const player = document.getElementById('player');
+
+            if (e.key === 'ArrowUp' && !isJumping && !isSliding) {
+                isJumping = true;
+                player.classList.add('jumping');
+                setTimeout(() => {
+                    player.classList.remove('jumping');
+                    isJumping = false;
+                }, 500);
+            }
+
+            if (e.key === 'ArrowDown' && !isSliding && !isJumping) {
+                isSliding = true;
+                player.classList.add('sliding');
+                setTimeout(() => {
+                    player.classList.remove('sliding');
+                    isSliding = false;
+                }, 500);
+            }
+        });
+
+        function resetGame() {
+            startGame();
+        }
+
+        function showRedeem() {
+            document.getElementById('balance').textContent = `⭐ Balance: ${coins} coins`;
+            updateRedeemCards();
+            showScreen('redeem');
+        }
+
+        function updateRedeemCards() {
+            const danceCard = document.getElementById('danceCard');
+            const bloomCard = document.getElementById('bloomCard');
+
+            if (coins < 1) {
+                danceCard.classList.add('disabled');
+            } else {
+                danceCard.classList.remove('disabled');
+            }
+
+            if (coins < 2) {
+                bloomCard.classList.add('disabled');
+            } else {
+                bloomCard.classList.remove('disabled');
+            }
+        }
+
+        function redeemDance() {
+            if (coins >= 1) {
+                coins -= 1;
+                document.getElementById('balance').textContent = `⭐ Balance: ${coins} coins`;
+                const flower = document.getElementById('danceFlower');
+                flower.classList.add('dancing');
+                setTimeout(() => flower.classList.remove('dancing'), 1500);
+                updateRedeemCards();
+            }
+        }
+
+        function redeemBloom() {
+            if (coins >= 2) {
+                coins -= 2;
+                document.getElementById('balance').textContent = `⭐ Balance: ${coins} coins`;
+                const flower = document.getElementById('bloomFlower');
+                flower.classList.add('blooming');
+                setTimeout(() => flower.classList.remove('blooming'), 2000);
+                updateRedeemCards();
+            }
+        }
+
+        function backToGameOver() {
+            showScreen('gameover');
+        }
+
+        function goHome() {
+            // Stop game and clear objects
+            gameRunning = false;
+            clearInterval(gameLoop);
+            clearInterval(spawnLoop);
+            obstacles.forEach(o => o.element.remove());
+            coinObjects.forEach(c => c.element.remove());
+            obstacles = [];
+            coinObjects = [];
+            const player = document.getElementById('player');
+            if (player) {
+                player.classList.remove('jumping', 'sliding');
+            }
+            updateCoinDisplay();
+            showScreen('landing');
+        }
+
+        // Add ornaments to tree and sparkles
+        window.addEventListener('load', () => {
+            const tree = document.querySelector('.tree');
+            const colors = ['#FC4024', '#F8991D', '#EF4782', '#8552A0', '#00859C'];
+            
+            // Tree ornaments
+            for (let i = 0; i < 20; i++) {
+                const ornament = document.createElement('div');
+                ornament.className = 'ornament';
+                ornament.style.background = colors[Math.floor(Math.random() * colors.length)];
+                ornament.style.left = Math.random() * 200 + 10 + 'px';
+                ornament.style.top = Math.random() * 220 + 'px';
+                ornament.style.animationDelay = Math.random() * 1.5 + 's';
+                tree.appendChild(ornament);
+            }
+
+            // Sparkles
+            const landing = document.getElementById('landing');
+            for (let i = 0; i < 30; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                sparkle.style.animationDelay = Math.random() * 1.5 + 's';
+                landing.appendChild(sparkle);
+            }
+        });
+    </script>
+</body>
+</html>
